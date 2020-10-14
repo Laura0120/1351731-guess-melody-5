@@ -1,6 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import {GameType} from '../../const';
 
-const ArtistQuestionScreen = () => {
+const ArtistQuestionScreen = (props) => {
+  const {onAnswer, question} = props;
+  const {answers, song} = question;
+
   return (
     <section className='game game--artist'>
       <header className='game__header'>
@@ -15,8 +20,7 @@ const ArtistQuestionScreen = () => {
             cx='390'
             cy='390'
             r='370'
-            style={{filter: `url(#blur)`, transform: `rotate(-90deg) scaleY(-1)`, transformOrigin: `center`}}
-          />
+            style={{filter: `url(#blur)`, transform: `rotate(-90deg) scaleY(-1)`, transformOrigin: `center`}}/>
         </svg>
 
         <div className='game__mistakes'>
@@ -32,39 +36,47 @@ const ArtistQuestionScreen = () => {
           <div className='track'>
             <button className='track__button track__button--play' type='button' />
             <div className='track__status'>
-              <audio></audio>
+              <audio src={song.src} />
             </div>
           </div>
         </div>
 
         <form className='game__artist'>
-          <div className='artist'>
-            <input className='artist__input visually-hidden' type='radio' name='answer' value='artist-1' id='answer-1' />
-            <label className='artist__name' htmlFor='answer-1'>
-              <img className='artist__picture' src='img/placeholder.jpg' alt='Пелагея' />
-              Пелагея
-            </label>
-          </div>
-
-          <div className='artist'>
-            <input className='artist__input visually-hidden' type='radio' name='answer' value='artist-2' id='answer-2' />
-            <label className='artist__name' htmlFor='answer-2'>
-              <img className='artist__picture' src='img/placeholder.jpg' alt='Пелагея' />
-              Краснознаменная дивизия имени моей бабушки
-            </label>
-          </div>
-
-          <div className='artist'>
-            <input className='artist__input visually-hidden' type='radio' name='answer' value='artist-3' id='answer-3' />
-            <label className='artist__name' htmlFor='answer-3'>
-              <img className='artist__picture' src='img/placeholder.jpg' alt='Пелагея' />
-              Lordi
-            </label>
-          </div>
+          {answers.map((answer, i) => (
+            <div key={answer.artist} className='artist'>
+              <input
+                className='artist__input visually-hidden'
+                type='radio'
+                name='answer'
+                value={`artist-${i}`}
+                id={`artist-${i}`}
+                onChange={(evt) => {
+                  evt.preventDefault();
+                  onAnswer(question, answer);
+                }}
+              />
+              <label className='artist__name' htmlFor={`artist-${i}`}>
+                <img className='artist__picture' src={answer.picture} alt={answer.artist} />
+                {answer.artist}
+              </label>
+            </div>
+          ))}
         </form>
       </section>
     </section>
   );
+};
+
+ArtistQuestionScreen.propTypes = {
+  onAnswer: PropTypes.func.isRequired,
+  question: PropTypes.shape({
+    answers: PropTypes.arrayOf(PropTypes.shape({artist: PropTypes.string.isRequired, picture: PropTypes.string.isRequired})).isRequired,
+    song: PropTypes.shape({
+      artist: PropTypes.string.isRequired,
+      src: PropTypes.string.isRequired,
+    }).isRequired,
+    type: PropTypes.oneOf([GameType.ARTIST, GameType.GENRE]).isRequired,
+  }).isRequired,
 };
 
 export default ArtistQuestionScreen;
